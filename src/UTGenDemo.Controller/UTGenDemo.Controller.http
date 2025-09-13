@@ -1,0 +1,6 @@
+@UTGenDemo.Api_HostAddress = http://localhost:5280
+
+GET {{UTGenDemo.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
