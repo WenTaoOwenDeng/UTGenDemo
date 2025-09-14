@@ -1,5 +1,5 @@
 using Moq;
-using Shouldly;
+using Xunit;
 using UTGenDemo.Repository.Interfaces;
 using UTGenDemo.Repository.Models;
 using UTGenDemo.Service.Services;
@@ -22,9 +22,9 @@ public class ProductServiceTests
     [Fact]
     public void Constructor_WhenProductRepositoryIsNull_ShouldThrowArgumentNullException()
     {
-        // Arrange & Act & Assert
-        Should.Throw<ArgumentNullException>(() => new ProductService(null!))
-            .ParamName.ShouldBe("productRepository");
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(() => new ProductService(null!));
+        Assert.Equal("productRepository", exception.ParamName);
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class ProductServiceTests
         var service = new ProductService(mockRepository.Object);
 
         // Assert
-        service.ShouldNotBeNull();
+        Assert.NotNull(service);
     }
 
     #endregion
@@ -57,7 +57,7 @@ public class ProductServiceTests
         var result = await _sut.GetProductByIdAsync(productId);
 
         // Assert
-        result.ShouldBe(expectedProduct);
+        Assert.Equal(expectedProduct, result);
         _productRepositoryMock.Verify(x => x.GetProductByIdAsync(productId), Times.Once);
     }
 
@@ -73,7 +73,7 @@ public class ProductServiceTests
         var result = await _sut.GetProductByIdAsync(productId);
 
         // Assert
-        result.ShouldBeNull();
+        Assert.Null(result);
         _productRepositoryMock.Verify(x => x.GetProductByIdAsync(productId), Times.Once);
     }
 
@@ -83,18 +83,18 @@ public class ProductServiceTests
     public async Task GetProductByIdAsync_WhenProductIdIsEmptyOrWhitespace_ShouldThrowArgumentException(string productId)
     {
         // Act & Assert
-        var exception = await Should.ThrowAsync<ArgumentException>(() => _sut.GetProductByIdAsync(productId));
-        exception.ParamName.ShouldBe("productId");
-        exception.Message.ShouldContain("Product ID cannot be null or empty");
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => _sut.GetProductByIdAsync(productId));
+        Assert.Equal("productId", exception.ParamName);
+        Assert.Contains("Product ID cannot be null or empty", exception.Message);
     }
 
     [Fact]
     public async Task GetProductByIdAsync_WhenProductIdIsNull_ShouldThrowArgumentException()
     {
         // Act & Assert
-        var exception = await Should.ThrowAsync<ArgumentException>(() => _sut.GetProductByIdAsync(null!));
-        exception.ParamName.ShouldBe("productId");
-        exception.Message.ShouldContain("Product ID cannot be null or empty");
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => _sut.GetProductByIdAsync(null!));
+        Assert.Equal("productId", exception.ParamName);
+        Assert.Contains("Product ID cannot be null or empty", exception.Message);
     }
 
     #endregion
@@ -121,9 +121,9 @@ public class ProductServiceTests
 
         // Assert
         var availableProducts = result.ToList();
-        availableProducts.Count.ShouldBe(2);
-        availableProducts.ShouldContain(p => p.Id == "1");
-        availableProducts.ShouldContain(p => p.Id == "4");
+        Assert.Equal(2, availableProducts.Count);
+        Assert.Contains(availableProducts, p => p.Id == "1");
+        Assert.Contains(availableProducts, p => p.Id == "4");
         _productRepositoryMock.Verify(x => x.GetInStockProductsAsync(), Times.Once);
     }
 
@@ -144,7 +144,7 @@ public class ProductServiceTests
         var result = await _sut.GetAvailableProductsAsync();
 
         // Assert
-        result.ShouldBeEmpty();
+        Assert.Empty(result);
         _productRepositoryMock.Verify(x => x.GetInStockProductsAsync(), Times.Once);
     }
 
@@ -170,7 +170,7 @@ public class ProductServiceTests
         var result = await _sut.GetProductsByCategoryAsync(category);
 
         // Assert
-        result.ShouldBe(expectedProducts);
+        Assert.Equal(expectedProducts, result);
         _productRepositoryMock.Verify(x => x.GetProductsByCategoryAsync(category), Times.Once);
     }
 
@@ -183,7 +183,7 @@ public class ProductServiceTests
         var result = await _sut.GetProductsByCategoryAsync(category);
 
         // Assert
-        result.ShouldBeEmpty();
+        Assert.Empty(result);
         _productRepositoryMock.Verify(x => x.GetProductsByCategoryAsync(It.IsAny<string>()), Times.Never);
     }
 
@@ -194,7 +194,7 @@ public class ProductServiceTests
         var result = await _sut.GetProductsByCategoryAsync(null!);
 
         // Assert
-        result.ShouldBeEmpty();
+        Assert.Empty(result);
         _productRepositoryMock.Verify(x => x.GetProductsByCategoryAsync(It.IsAny<string>()), Times.Never);
     }
 
@@ -230,8 +230,8 @@ public class ProductServiceTests
         var result = await _sut.CreateProductAsync(product);
 
         // Assert
-        result.ShouldBe(expectedProduct);
-        product.Id.ShouldNotBeNullOrEmpty();
+        Assert.Equal(expectedProduct, result);
+        Assert.NotEmpty(product.Id);
         _productRepositoryMock.Verify(x => x.CreateProductAsync(It.Is<Product>(p => !string.IsNullOrEmpty(p.Id))), Times.Once);
     }
 
@@ -239,8 +239,8 @@ public class ProductServiceTests
     public async Task CreateProductAsync_WhenProductIsNull_ShouldThrowArgumentNullException()
     {
         // Act & Assert
-        var exception = await Should.ThrowAsync<ArgumentNullException>(() => _sut.CreateProductAsync(null!));
-        exception.ParamName.ShouldBe("product");
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _sut.CreateProductAsync(null!));
+        Assert.Equal("product", exception.ParamName);
     }
 
     [Theory]
@@ -257,9 +257,9 @@ public class ProductServiceTests
         };
 
         // Act & Assert
-        var exception = await Should.ThrowAsync<ArgumentException>(() => _sut.CreateProductAsync(product));
-        exception.ParamName.ShouldBe("product");
-        exception.Message.ShouldContain("Product name is required");
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => _sut.CreateProductAsync(product));
+        Assert.Equal("product", exception.ParamName);
+        Assert.Contains("Product name is required", exception.Message);
     }
 
     [Fact]
@@ -274,9 +274,9 @@ public class ProductServiceTests
         };
 
         // Act & Assert
-        var exception = await Should.ThrowAsync<ArgumentException>(() => _sut.CreateProductAsync(product));
-        exception.ParamName.ShouldBe("product");
-        exception.Message.ShouldContain("Product name is required");
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => _sut.CreateProductAsync(product));
+        Assert.Equal("product", exception.ParamName);
+        Assert.Contains("Product name is required", exception.Message);
     }
 
     [Theory]
@@ -293,9 +293,9 @@ public class ProductServiceTests
         };
 
         // Act & Assert
-        var exception = await Should.ThrowAsync<ArgumentException>(() => _sut.CreateProductAsync(product));
-        exception.ParamName.ShouldBe("product");
-        exception.Message.ShouldContain("Product price cannot be negative");
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => _sut.CreateProductAsync(product));
+        Assert.Equal("product", exception.ParamName);
+        Assert.Contains("Product price cannot be negative", exception.Message);
     }
 
     #endregion
@@ -309,7 +309,7 @@ public class ProductServiceTests
         var result = _sut.CalculateTotalValue(null!);
 
         // Assert
-        result.ShouldBe(0);
+        Assert.Equal(0, result);
     }
 
     [Fact]
@@ -322,7 +322,7 @@ public class ProductServiceTests
         var result = _sut.CalculateTotalValue(products);
 
         // Assert
-        result.ShouldBe(0);
+        Assert.Equal(0, result);
     }
 
     [Fact]
@@ -340,7 +340,7 @@ public class ProductServiceTests
         var result = _sut.CalculateTotalValue(products);
 
         // Assert
-        result.ShouldBe(140); // 50 + 60 + 30
+        Assert.Equal(140, result); // 50 + 60 + 30
     }
 
     [Fact]
@@ -359,7 +359,7 @@ public class ProductServiceTests
         var result = _sut.CalculateTotalValue(products);
 
         // Assert
-        result.ShouldBe(150); // 50 + 100
+        Assert.Equal(150, result); // 50 + 100
     }
 
     #endregion
@@ -389,8 +389,8 @@ public class ProductServiceTests
         var result = await _sut.ApplyDiscountAsync(productId, discountPercentage);
 
         // Assert
-        result.ShouldBeTrue();
-        product.Price.ShouldBe(80m); // 100 - (100 * 0.2)
+        Assert.True(result);
+        Assert.Equal(80m, product.Price); // 100 - (100 * 0.2)
         _productRepositoryMock.Verify(x => x.GetProductByIdAsync(productId), Times.Once);
         _productRepositoryMock.Verify(x => x.UpdateProductAsync(product), Times.Once);
     }
@@ -409,7 +409,7 @@ public class ProductServiceTests
         var result = await _sut.ApplyDiscountAsync(productId, discountPercentage);
 
         // Assert
-        result.ShouldBeFalse();
+        Assert.False(result);
         _productRepositoryMock.Verify(x => x.GetProductByIdAsync(productId), Times.Once);
         _productRepositoryMock.Verify(x => x.UpdateProductAsync(It.IsAny<Product>()), Times.Never);
     }
@@ -435,7 +435,7 @@ public class ProductServiceTests
         var result = await _sut.ApplyDiscountAsync(productId, invalidDiscount);
 
         // Assert
-        result.ShouldBeFalse();
+        Assert.False(result);
         _productRepositoryMock.Verify(x => x.GetProductByIdAsync(productId), Times.Once);
         _productRepositoryMock.Verify(x => x.UpdateProductAsync(It.IsAny<Product>()), Times.Never);
     }

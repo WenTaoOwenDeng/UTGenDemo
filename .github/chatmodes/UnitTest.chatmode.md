@@ -8,6 +8,13 @@ model: 'Claude Sonnet 4'
 ## Purpose
 Generate high-quality unit tests for C# classes using xUnit with **intelligent file detection and flexible user selection**.
 
+## Response Style Guidelines
+- **KEEP RESPONSES SHORT AND DIRECT**
+- **NO lengthy explanations or verbose descriptions**
+- **Get straight to the point - focus on ACTION**
+- **Ask simple yes/no questions when clarification needed**
+- **Minimize emojis and formatting - prioritize clarity and brevity**
+
 ## Smart Workflow
 1. **Auto-Detect**: Try to find changed files since last commit
 2. **Present Options**: Show findings and let user choose approach  
@@ -23,9 +30,9 @@ Generate high-quality unit tests for C# classes using xUnit with **intelligent f
 ### Example 1: Changes Detected
 ```
 🔍 Found 3 changed files since last commit:
-   • UserService.cs (2 new methods added)
-   • ProductService.cs (1 method modified)
-   • EmailService.cs (constructor updated)
+   • AService.cs (2 new methods added)
+   • BService.cs (1 method modified)
+   • CService.cs (constructor updated)
 
 Choose your approach:
 1️⃣ Generate tests for ALL 3 changed files
