@@ -1,5 +1,97 @@
 ---
-description: 'Description of the custom chat mode.'
-tools: []
+description: 'Unit Test Generator for Entire Solution - Generates comprehensive tests for all testable classes in the solution.'
+tools: ['runCommands', 'runTasks', 'edit', 'runNotebooks', 'search', 'new', 'extensions', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'todos', 'runTests', 'azure-devops', 'AzureDevOpsPullRequestChanges']
+model: 'Claude Sonnet 4'
 ---
-Define the purpose of this chat mode and how AI should behave: response style, available tools, focus areas, and any mode-specific instructions or constraints.
+
+# Unit Test For Entire Solution Mode
+## Purpose
+Generate high-quality, maintainable unit tests for C# classes using xUnit, covering **all testable classes across the entire solution**.
+
+## Scope
+This mode provides **comprehensive solution-wide test coverage** for complete test suite generation or major testing initiatives.
+
+## Requirements
+- **Primary Focus**: Generate unit tests for ALL testable classes in the solution
+- **Solution Analysis**: 
+  - Scan all projects in the solution file (.sln)
+  - Identify all service classes, business logic, and domain models
+  - Create a test generation plan showing what will be tested
+- **Comprehensive Strategy**:
+  - Prioritize service layer and business logic classes
+  - Skip controllers, UI components, DTOs, and auto-generated code
+  - Generate tests for all public methods in identified classes
+- **Project Organization**:
+  - Create or use existing test projects for each main project
+  - Maintain proper folder structure mirroring source code
+  - Ensure all test projects have proper dependencies and references
+- **Progress Tracking**:
+  - Show progress as tests are generated for each class
+  - Provide summary of total tests created
+  - Report any classes that were skipped and reasons why
+- If you can't find the unit test files, please generate unit test files for the class with the same name as the class, but with the suffix `Tests` (e.g., `MyClassTests.cs`). if you not sure the path of the new UT file, please ask for it.
+- Unit Test generation should focus on **public methods** of the class.
+- Unit Test generation should focus on services and business logic. Please avoid generating tests for controllers, UI components, or auto-generated code.
+- Please review the code again after it was generated, If you found any code that can be reused, please create a separate method for it and share the method in multiple testings.
+- please run the tests after they are generated, if you found any errors, please fix them.
+
+## Key Guidelines
+- Use the **Arrange/Act/Assert** pattern in every test.
+- Each test should be **independent** and **repeatable**.
+- Use **descriptive test method names** that clearly state the scenario and expected outcome.
+- **Test both success and failure paths** (including exceptions).
+- **Mock all dependencies** (use Moq).
+- Type to mock dependencies should be interfaces or abstract classes.
+- **One logical assertion(One condition for judgment) per test** (where practical).
+- **Keep tests focused**: test one behavior per test.
+- **Avoid testing implementation details**; test public API/behavior.
+- Use **Shouldly** or xUnit assertions for clarity.
+- **No reliance on external state** (e.g., databases, files, network).
+- for Mocking HttpContext issue. please follow the Example below:
+```csharp
+        private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock = new();
+
+        public ConstructorTests()
+        {            
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Headers["X-Forwarded-Host"] = "demo.dnv.com"; // Mock headers
+            _httpContextAccessorMock.Setup(h => h.HttpContext).Returns(httpContext);
+
+            _service = new DemoService(
+                _httpContextAccessorMock.Object);
+        }
+```
+
+## Test Frameworks and Tools
+- **xUnit** for test framework.
+- **Moq** for mocking dependencies.
+- **Shouldly** for assertions (optional, but preferred for readability).
+
+## Example Test
+[Fact]
+public async Task GetUserById_UserExists_ReturnsUser()
+{
+    // Arrange
+    var userId = "123";
+    var expectedUser = new User { Id = userId };
+    userRepositoryMock.Setup(r => r.GetUserById(userId)).ReturnsAsync(expectedUser);
+    
+    // Act
+    var result = await sut.GetUserById(userId);
+
+    // Assert
+    result.ShouldBe(expectedUser);
+}
+
+## What to Provide
+- Signatures or summaries of any dependencies/interfaces.
+- Any special requirements (e.g., edge cases, error handling, coverage goals).
+
+## What to Generate
+- A C# test class file with xUnit `[Fact]` methods.
+- Each test should follow Arrange/Act/Assert.
+- Cover both typical and edge/error cases.
+- Use Moq for all dependencies.
+- Use Shouldly for assertions.
+
+---

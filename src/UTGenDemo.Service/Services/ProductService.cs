@@ -57,6 +57,10 @@ public class ProductService: IProductService
         }
 
         product.Id = Guid.NewGuid().ToString();
+        if (string.IsNullOrWhiteSpace(product.Id))
+        {
+            throw new InvalidOperationException("Failed to generate product ID");
+        }
         return await _productRepository.CreateProductAsync(product);
     }
 
