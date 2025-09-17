@@ -31,12 +31,30 @@ This mode provides **comprehensive solution-wide test coverage** for complete te
           └── Middleware/
   ```
 
+## Workflow Process
+1. **Solution Analysis & Planning Phase**:
+   - Scan all projects in the solution file (.sln)
+   - Identify all testable classes (services, business logic, domain models, repositories, middleware)
+   - Create a detailed test generation plan showing:
+     - Which classes will be tested
+     - Estimated number of tests per class
+     - Which classes will be skipped and why
+     - Test project structure and organization
+2. **User Confirmation Phase**:
+   - Present the analysis and plan to the user
+   - Wait for explicit user confirmation before proceeding
+   - Allow user to modify the scope or approach if needed
+3. **Test Generation Phase**:
+   - Create test project and structure
+   - Generate comprehensive unit tests
+   - Validate and execute tests
+
 ## Requirements
 - **Primary Focus**: Generate unit tests for ALL testable classes in the solution
-- **Solution Analysis**: 
-  - Scan all projects in the solution file (.sln)
-  - Identify all service classes, business logic, and domain models
-  - Create a test generation plan showing what will be tested
+- **Solution Analysis & Confirmation**: 
+  - **MANDATORY**: Present solution analysis and test generation plan to user
+  - **MANDATORY**: Wait for user confirmation before starting test generation
+  - Show detailed breakdown of what will be tested and estimated effort
 - **Comprehensive Strategy**:
   - Prioritize service layer and business logic classes
   - Skip controllers, UI components, DTOs, and auto-generated code
@@ -82,12 +100,15 @@ public ConstructorTests()
 ```
 
 ## Test Project Setup Process
-1. **Create Test Project**: `dotnet new xunit -n "{SolutionName}.UnitTests" -o "src/{SolutionName}.UnitTests"`
-2. **Add to Solution**: `dotnet sln add "src/{SolutionName}.UnitTests"`
-3. **Add Project References**: Reference all testable projects
-4. **Install Packages**: Moq, Shouldly, Microsoft.AspNetCore.Http (if needed)
-5. **Create Folder Structure**: Mirror source projects as folders within test project
-6. **Generate Tests**: Create comprehensive test classes for all testable classes
+1. **Analyze Solution**: Scan solution file and identify all testable classes
+2. **Present Plan**: Show comprehensive test generation plan to user
+3. **Get Confirmation**: Wait for explicit user approval before proceeding
+4. **Create Test Project**: `dotnet new xunit -n "{SolutionName}.UnitTests" -o "src/{SolutionName}.UnitTests"`
+5. **Add to Solution**: `dotnet sln add "src/{SolutionName}.UnitTests"`
+6. **Add Project References**: Reference all testable projects
+7. **Install Packages**: Moq, Shouldly, Microsoft.AspNetCore.Http (if needed)
+8. **Create Folder Structure**: Mirror source projects as folders within test project
+9. **Generate Tests**: Create comprehensive test classes for all testable classes
 
 ## Test Frameworks and Tools
 - **xUnit** for test framework
@@ -117,6 +138,9 @@ public async Task GetUserById_UserExists_ReturnsUser()
 ```
 
 ## What This Mode Generates
+- **Detailed Solution Analysis** with comprehensive breakdown of testable classes
+- **Test Generation Plan** presented to user for confirmation before proceeding
+- **User Confirmation Step** to ensure alignment before starting test generation
 - **Single consolidated test project** in `src/{SolutionName}.UnitTests`
 - **Organized folder structure** mirroring source projects
 - **Comprehensive test coverage** for all testable classes
@@ -124,6 +148,12 @@ public async Task GetUserById_UserExists_ReturnsUser()
 - **Proper mocking setup** for all dependencies
 - **Both positive and negative test cases** for robust coverage
 - **Detailed progress reporting** and test execution validation
+
+## Important Notes
+- **This mode requires user confirmation** before generating tests
+- The analysis phase will show exactly what will be tested and why
+- Users can modify the scope or approach based on the presented plan
+- No test generation occurs until explicit user approval is given
 
 ## Quality Assurance
 - All tests must compile without errors
