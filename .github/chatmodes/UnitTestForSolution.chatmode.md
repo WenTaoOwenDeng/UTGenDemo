@@ -11,6 +11,26 @@ Generate high-quality, maintainable unit tests for C# classes using xUnit, cover
 ## Scope
 This mode provides **comprehensive solution-wide test coverage** for complete test suite generation or major testing initiatives.
 
+## Test Project Structure
+- **Single Test Project**: Create one unified test project named `{SolutionName}.UnitTests` in the `src/` folder
+- **Organized by Source Project**: Each source project gets its own folder within the test project
+- **Folder Structure Example**:
+  ```
+  src/
+  ├── MyApp.Core/
+  ├── MyApp.Service/
+  ├── MyApp.API/
+  └── MyApp.UnitTests/          # Single test project
+      ├── Core/                 # Tests for MyApp.Core
+      │   ├── Services/
+      │   └── Models/
+      ├── Service/              # Tests for MyApp.Service
+      │   ├── UserServiceTests.cs
+      │   └── ProductServiceTests.cs
+      └── API/                  # Tests for MyApp.API (if needed)
+          └── Middleware/
+  ```
+
 ## Requirements
 - **Primary Focus**: Generate unit tests for ALL testable classes in the solution
 - **Solution Analysis**: 
@@ -22,76 +42,94 @@ This mode provides **comprehensive solution-wide test coverage** for complete te
   - Skip controllers, UI components, DTOs, and auto-generated code
   - Generate tests for all public methods in identified classes
 - **Project Organization**:
-  - Create or use existing test projects for each main project
-  - Maintain proper folder structure mirroring source code
-  - Ensure all test projects have proper dependencies and references
+  - Create single test project: `{SolutionName}.UnitTests` in `src/` folder
+  - Organize tests in folders matching source project structure
+  - Add references to all source projects that need testing
+  - Ensure proper dependencies (xUnit, Moq, Shouldly, etc.)
 - **Progress Tracking**:
   - Show progress as tests are generated for each class
   - Provide summary of total tests created
   - Report any classes that were skipped and reasons why
-- If you can't find the unit test files, please generate unit test files for the class with the same name as the class, but with the suffix `Tests` (e.g., `MyClassTests.cs`). if you not sure the path of the new UT file, please ask for it.
-- Unit Test generation should focus on **public methods** of the class.
-- Unit Test generation should focus on services and business logic. Please avoid generating tests for controllers, UI components, or auto-generated code.
-- Please review the code again after it was generated, If you found any code that can be reused, please create a separate method for it and share the method in multiple testings.
-- please run the tests after they are generated, if you found any errors, please fix them.
+- **Test File Naming**: Generate test files with `Tests` suffix (e.g., `UserServiceTests.cs`)
+- **Focus Areas**: Services, business logic, domain models, repositories, middleware
+- **Skip**: Controllers, UI components, DTOs, auto-generated code, simple data classes
+- **Code Quality**: Review generated code for reusable helper methods and consolidate where appropriate
+- **Validation**: Run tests after generation and fix any compilation or runtime errors
 
 ## Key Guidelines
-- Use the **Arrange/Act/Assert** pattern in every test.
-- Each test should be **independent** and **repeatable**.
-- Use **descriptive test method names** that clearly state the scenario and expected outcome.
-- **Test both success and failure paths** (including exceptions).
-- **Mock all dependencies** (use Moq).
-- Type to mock dependencies should be interfaces or abstract classes.
-- **One logical assertion(One condition for judgment) per test** (where practical).
-- **Keep tests focused**: test one behavior per test.
-- **Avoid testing implementation details**; test public API/behavior.
-- Use **Shouldly** or xUnit assertions for clarity.
-- **No reliance on external state** (e.g., databases, files, network).
-- for Mocking HttpContext issue. please follow the Example below:
+- Use the **Arrange/Act/Assert** pattern in every test
+- Each test should be **independent** and **repeatable**
+- Use **descriptive test method names** that clearly state the scenario and expected outcome
+- **Test both success and failure paths** (including exceptions)
+- **Mock all dependencies** using Moq (prefer interfaces/abstract classes)
+- **One logical assertion per test** (where practical)
+- **Keep tests focused**: test one behavior per test
+- **Avoid testing implementation details**; focus on public API/behavior
+- Use **Shouldly** for assertions (preferred for readability)
+- **No reliance on external state** (databases, files, network, etc.)
+- **HttpContext Mocking Example**:
 ```csharp
-        private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock = new();
+private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock = new();
 
-        public ConstructorTests()
-        {            
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Headers["X-Forwarded-Host"] = "demo.dnv.com"; // Mock headers
-            _httpContextAccessorMock.Setup(h => h.HttpContext).Returns(httpContext);
-
-            _service = new DemoService(
-                _httpContextAccessorMock.Object);
-        }
+public ConstructorTests()
+{            
+    var httpContext = new DefaultHttpContext();
+    httpContext.Request.Headers["X-Forwarded-Host"] = "demo.dnv.com";
+    _httpContextAccessorMock.Setup(h => h.HttpContext).Returns(httpContext);
+    
+    _service = new DemoService(_httpContextAccessorMock.Object);
+}
 ```
 
-## Test Frameworks and Tools
-- **xUnit** for test framework.
-- **Moq** for mocking dependencies.
-- **Shouldly** for assertions (optional, but preferred for readability).
+## Test Project Setup Process
+1. **Create Test Project**: `dotnet new xunit -n "{SolutionName}.UnitTests" -o "src/{SolutionName}.UnitTests"`
+2. **Add to Solution**: `dotnet sln add "src/{SolutionName}.UnitTests"`
+3. **Add Project References**: Reference all testable projects
+4. **Install Packages**: Moq, Shouldly, Microsoft.AspNetCore.Http (if needed)
+5. **Create Folder Structure**: Mirror source projects as folders within test project
+6. **Generate Tests**: Create comprehensive test classes for all testable classes
 
-## Example Test
+## Test Frameworks and Tools
+- **xUnit** for test framework
+- **Moq** for mocking dependencies  
+- **Shouldly** for assertions (preferred for readability)
+- **Microsoft.AspNetCore.Http** for HTTP context testing (when needed)
+- **Microsoft.Extensions.Logging.Abstractions** for logger mocking
+
+## Example Test Structure
+```csharp
 [Fact]
 public async Task GetUserById_UserExists_ReturnsUser()
 {
     // Arrange
     var userId = "123";
     var expectedUser = new User { Id = userId };
-    userRepositoryMock.Setup(r => r.GetUserById(userId)).ReturnsAsync(expectedUser);
+    _userRepositoryMock.Setup(r => r.GetUserByIdAsync(userId))
+        .ReturnsAsync(expectedUser);
     
     // Act
-    var result = await sut.GetUserById(userId);
+    var result = await _sut.GetUserByIdAsync(userId);
 
     // Assert
     result.ShouldBe(expectedUser);
+    _userRepositoryMock.Verify(r => r.GetUserByIdAsync(userId), Times.Once);
 }
+```
 
-## What to Provide
-- Signatures or summaries of any dependencies/interfaces.
-- Any special requirements (e.g., edge cases, error handling, coverage goals).
+## What This Mode Generates
+- **Single consolidated test project** in `src/{SolutionName}.UnitTests`
+- **Organized folder structure** mirroring source projects
+- **Comprehensive test coverage** for all testable classes
+- **High-quality test files** following best practices
+- **Proper mocking setup** for all dependencies
+- **Both positive and negative test cases** for robust coverage
+- **Detailed progress reporting** and test execution validation
 
-## What to Generate
-- A C# test class file with xUnit `[Fact]` methods.
-- Each test should follow Arrange/Act/Assert.
-- Cover both typical and edge/error cases.
-- Use Moq for all dependencies.
-- Use Shouldly for assertions.
+## Quality Assurance
+- All tests must compile without errors
+- All tests must pass when executed
+- Code review for reusable helper methods
+- Consolidation of common test patterns
+- Summary report of total coverage achieved
 
 ---
