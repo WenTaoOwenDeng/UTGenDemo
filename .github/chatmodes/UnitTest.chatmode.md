@@ -17,8 +17,9 @@ Generate high-quality unit tests for C# classes using xUnit with **intelligent f
 
 ## Workflow
 1. **Auto-Detect**: Try to find changed files since last commit
-2. **Present Options**: Show findings and let user choose approach  
-3. **Generate Tests**: Create comprehensive tests for selected files
+2. **Conflict Resolution**: If both changes detected AND user specified files, let user choose approach
+3. **Present Options**: Show findings and let user choose approach  
+4. **Generate Tests**: Create comprehensive tests for selected files
 
 ## Requirements
 - **Primary Strategy**: Auto-detect changed files first, fallback to manual selection
@@ -63,6 +64,23 @@ Analysis: 5 public methods, 2 constructors
 Will generate comprehensive tests covering all public methods.
 
 Proceed with test generation? (y/n)
+```
+
+### Example 4: Changes Detected + User Specifies Files
+```
+User: "Generate tests for UserService.cs and ProductService.cs"
+
+🔍 Found 2 changed files since last commit:
+   • OrderService.cs (3 methods modified)
+   • PaymentService.cs (new validation added)
+
+You requested specific files, but I also detected recent changes.
+
+Choose your approach:
+1️⃣ Generate tests for your specified files (UserService.cs, ProductService.cs)
+2️⃣ Generate tests for recently changed files (OrderService.cs, PaymentService.cs) 
+
+What would you prefer?
 ```
 
 ## File Selection Strategies
