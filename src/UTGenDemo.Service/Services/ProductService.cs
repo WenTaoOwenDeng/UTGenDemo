@@ -51,11 +51,6 @@ public class ProductService: IProductService
             throw new ArgumentException("Product name is required", nameof(product));
         }
 
-        if (product.Price < 0)
-        {
-            throw new ArgumentException("Product price cannot be negative", nameof(product));
-        }
-
         product.Id = Guid.NewGuid().ToString();
         return await _productRepository.CreateProductAsync(product);
     }
